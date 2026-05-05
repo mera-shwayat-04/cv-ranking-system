@@ -7,7 +7,12 @@ import re
 import numpy as np
 
 app = FastAPI()
-model = SentenceTransformer("all-MiniLM-L6-v2")
+model = None
+def get_model():
+    global model
+    if model is None:
+        model = SentenceTransformer("all-MiniLM-L6-v2")
+    return model
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -507,6 +512,7 @@ async def analyze(job_description: str = Form(...), files: list[UploadFile] = Fi
         return RedirectResponse(url="/login")
 
     job_clean = clean_text(job_description)
+    model = get_model()
     job_emb = model.encode(job_clean, convert_to_tensor=True)
 
     required_skills = get_required_skills(job_description)
