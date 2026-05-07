@@ -1,2 +1,0 @@
-﻿filename,score,match_level,found,missing,email,phone,language,ai_explanation
-temp_7.pdf,46.93,Low Match,"python, api, backend","machine learning, data analysis, apis, pandas, tensorflow",Not found,Not found,English,"Weak candidate: matched python, api, backend. Missing: machine learning, data analysis. Language: English."
