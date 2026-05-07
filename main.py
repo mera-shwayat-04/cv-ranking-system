@@ -679,20 +679,27 @@ async def analyze(job_description: str = Form(...), files: list[UploadFile] = Fi
         if not item["chunk_sims"]:
             continue
 
+        found_skills = get_found_skills(required_skills, item["text"])
+        missing_skills = get_missing_skills(required_skills, item["text"])
+
+        skill_match_ratio = len(found_skills) / len(required_skills) if required_skills else 0
+
         sim = max(item["chunk_sims"])
         exp = item["experience"]
         interaction = sim * exp
 
         final_score = (
-            0.65 * sim +
-            0.20 * exp +
+            0.55 * sim +
+            0.30 * skill_match_ratio +
+            0.10 * exp +
             0.05 * interaction
         )
+        if not missing_skills:
+            final_score += 0.10
+        final_score = min(final_score, 1.0)
+
 
         final_score_percent = round(final_score * 100, 2)
-
-        found_skills = get_found_skills(required_skills, item["text"])
-        missing_skills = get_missing_skills(required_skills, item["text"])
 
         results.append({
             "filename": item["filename"],
