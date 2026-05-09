@@ -15,7 +15,7 @@ def get_model():
     global model, st_util
     if model is None:
         from sentence_transformers import SentenceTransformer, util
-        model = SentenceTransformer("all-MiniLM-L6-v2", device="cpu")
+        model = SentenceTransformer("all-MiniLM-L6-v2")
         st_util = util
     return model, st_util
 
@@ -140,7 +140,7 @@ def login_page():
 
     <body>
         <div class="box">
-            <div class="robot">🤖</div>
+            <div class="robot">🧑‍💼</div>
             <h2>HR Login</h2>
             <p>Access the AI Resume Screening System</p>
 
@@ -434,7 +434,7 @@ def upload_page():
             </div>
 
             <div class="card assistant">
-                <div class="big-robot">🤖</div>
+                <div class="big-robot">🧑‍💼</div>
                 <h3>AI Assistant</h3>
                 <p class="muted">I will help you find the strongest candidates based on skills, relevance, and similarity.</p>
 
@@ -444,7 +444,7 @@ def upload_page():
             </div>
         </div>
 
-        <div class="robot">🤖</div>
+        <div class="robot">🧑‍💼</div>
 
         <div class="loading" id="loading">
             <div class="loader"></div>
@@ -627,12 +627,11 @@ async def analyze(job_description: str = Form(...), files: list[UploadFile] = Fi
             chunks = split_text_into_chunks(cv_text, size=100)
 
             chunk_sims = []
-
-            for chunk in chunks:
-                chunk_emb = model.encode(chunk, convert_to_tensor=True)
-                sim = util.cos_sim(job_emb, chunk_emb).item()
-                chunk_sims.append(sim)
-                all_sim_scores.append(sim)
+            if chunks:
+                chunk_embs = model.encode(chunks, convert_to_tensor=True)
+                sims = util.cos_sim(chunk_embs, job_emb).cpu().numpy().flatten().tolist()
+                chunk_sims.extend(sims)
+                all_sim_scores.extend(sims)
 
             exp_years = extract_experience_years(raw_text)
             exp = normalize_experience(exp_years)
